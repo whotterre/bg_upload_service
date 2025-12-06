@@ -143,9 +143,13 @@ curl -X POST http://localhost:8080/upload \
 **Response:**
 ```json
 {
-  "upload_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "processing",
-  "message": "Image uploaded successfully and queued for processing"
+  "job_id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "pending",
+  "message": "Image uploaded and queued for processing",
+  "links": {
+    "status": "/upload/550e8400-e29b-41d4-a716-446655440000/status",
+    "result": "/upload/550e8400-e29b-41d4-a716-446655440000/result"
+  }
 }
 ```
 
@@ -163,29 +167,24 @@ curl http://localhost:8080/upload/550e8400-e29b-41d4-a716-446655440000/status
 **Response (Processing):**
 ```json
 {
-  "upload_id": "550e8400-e29b-41d4-a716-446655440000",
+  "job_id": "550e8400-e29b-41d4-a716-446655440000",
   "status": "processing",
   "progress": 50,
-  "message": "Compressing image..."
+  "error_message": "",
+  "created_at": "2025-12-06T10:00:00Z",
+  "completed_at": null
 }
 ```
 
 **Response (Completed):**
 ```json
 {
-  "upload_id": "550e8400-e29b-41d4-a716-446655440000",
+  "job_id": "550e8400-e29b-41d4-a716-446655440000",
   "status": "completed",
   "progress": 100,
-  "message": "Processing completed successfully"
-}
-```
-
-**Response (Failed):**
-```json
-{
-  "upload_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "failed",
-  "error": "Failed to compress image: invalid format"
+  "error_message": "",
+  "created_at": "2025-12-06T10:00:00Z",
+  "completed_at": "2025-12-06T10:00:05Z"
 }
 ```
 
@@ -203,21 +202,22 @@ curl http://localhost:8080/upload/550e8400-e29b-41d4-a716-446655440000/result
 **Response:**
 ```json
 {
-  "upload_id": "550e8400-e29b-41d4-a716-446655440000",
+  "job_id": "550e8400-e29b-41d4-a716-446655440000",
   "status": "completed",
-  "original_url": "https://your-bucket.s3.amazonaws.com/originals/550e8400-e29b-41d4-a716-446655440000.jpg",
-  "processed_images": {
-    "resized_url": "https://your-bucket.s3.amazonaws.com/resized/550e8400-e29b-41d4-a716-446655440000.jpg",
-    "compressed_url": "https://your-bucket.s3.amazonaws.com/compressed/550e8400-e29b-41d4-a716-446655440000.jpg",
-    "thumbnail_url": "https://your-bucket.s3.amazonaws.com/thumbnails/550e8400-e29b-41d4-a716-446655440000.jpg"
+  "original": {
+    "url": "https://your-bucket.s3.amazonaws.com/originals/550e8400.jpg",
+    "size": 2048000
+  },
+  "processed": {
+    "resized_url": "https://your-bucket.s3.amazonaws.com/resized/550e8400.jpg",
+    "compressed_url": "https://your-bucket.s3.amazonaws.com/compressed/550e8400.jpg",
+    "thumbnail_url": "https://your-bucket.s3.amazonaws.com/thumbnails/550e8400.jpg",
+    "compressed_size": 512000
   },
   "metadata": {
-    "original_size": 2048000,
-    "compressed_size": 512000,
-    "format": "jpeg",
     "width": 1920,
     "height": 1080,
-    "processed_at": "2025-12-06T10:30:00Z"
+    "format": "jpeg"
   }
 }
 ```
