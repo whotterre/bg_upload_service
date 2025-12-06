@@ -26,7 +26,7 @@ This service provides a REST API for uploading images with background processing
 
 ## Architecture
 
-```
+```                
 ┌─────────┐      ┌────────────┐      ┌───────┐
 │ Client  │─────▶│  Gin API   │─────▶│  S3   │
 └─────────┘      └────────────┘      └───────┘
@@ -107,13 +107,6 @@ COMPRESS_QUALITY=85
 
 ```bash
 go run cmd/api/main.go
-```
-
-### Start the Worker
-
-In a separate terminal:
-```bash
-go run cmd/worker/main.go
 ```
 
 ### Using Docker Compose
