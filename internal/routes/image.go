@@ -1,19 +1,40 @@
 package routes
 
 import (
-	"net/http"
+	"context"
+	"log"
+	"whotterre/img_service/internal/config"
+	"whotterre/img_service/internal/handlers"
+	"whotterre/img_service/internal/repositories"
 	"whotterre/img_service/internal/workers"
 
+	awsConfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 func SetupRoutes(app *gin.Engine, db *gorm.DB, taskDistributor workers.TaskDistributor) {
-	app.POST("/upload", dummyHandler)
-	app.GET("/upload/{id}/status", dummyHandler)
-	app.GET("/upload/{id}/result", dummyHandler)
-}
+	cfg, err := awsConfig.LoadDefaultConfig(context.TODO(),
+		awsConfig.WithRegion(config.AppConfig.AWSRegion),
+		awsConfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
+			config.AppConfig.AWSAccessKeyID,
+			config.AppConfig.AWSSecretAccessKey,
+			"",
+		)),
+	)
+	if err != nil {
+		log.Fatalf("unable to load AWS SDK config: %v", err)
+	}
+	s3Client := s3.NewFromConfig(cfg)
 
-func dummyHandler(c *gin.Context) {
-	c.JSON(http.StatusCreated, gin.H{"message": "Cooking beans"})
+	jobRepo := repositories.NewJobRepository(db)
+	imageRepo := repositories.NewUploadRepository(db)
+
+	imageHandlers := handlers.NewImageHandlers(jobRepo, imageRepo, taskDistributor, s3Client)
+
+	app.POST("/upload", imageHandlers.UploadImage)
+	app.GET("/upload/:id/status", imageHandlers.GetJobStatus)
+	app.GET("/upload/:id/result", imageHandlers.GetJobResult)
 }
