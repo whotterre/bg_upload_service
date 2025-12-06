@@ -12,6 +12,7 @@ type Config struct {
 	RedisAddr          string `mapstructure:"REDIS_ADDR"`
 	RedisPassword      string `mapstructure:"REDIS_PASSWORD"`
 	RedisDB            int    `mapstructure:"REDIS_DB"`
+	DatabaseURL        string `mapstructure:"DATABASE_URL"`
 	AWSRegion          string `mapstructure:"AWS_REGION"`
 	AWSAccessKeyID     string `mapstructure:"AWS_ACCESS_KEY_ID"`
 	AWSSecretAccessKey string `mapstructure:"AWS_SECRET_ACCESS_KEY"`
